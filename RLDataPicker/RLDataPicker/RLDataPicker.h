@@ -10,8 +10,6 @@
 
 @interface RLDataPicker : RLBaseView
 
-@property (nonatomic, strong) NSDate *defaultDate;
-
-- (instancetype)initWithFrame:(CGRect)frame maxDate:(NSDate *)maxDate minDate:(NSDate *)minDate completion:(void(^)(NSDate *))completion;
++ (instancetype)showWithDefaultDate:(NSDate *)defaultDate minDate:(NSDate *)minDate maxDate:(NSDate *)maxDate completion:(void(^)(NSDate *))completion;
 
 @end

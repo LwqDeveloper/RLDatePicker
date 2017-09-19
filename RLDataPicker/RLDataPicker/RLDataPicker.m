@@ -23,26 +23,18 @@
 
 @property (nonatomic, strong) RLDateHelper *dateHelper;
 @property (nonatomic, copy  ) void(^completion)(NSDate *date);
+@property (nonatomic, strong) NSDate *defaultDate;
 
 @end
 
 @implementation RLDataPicker
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame maxDate:(NSDate *)maxDate minDate:(NSDate *)minDate completion:(void(^)(NSDate *))completion
 {
     if (self = [super initWithFrame:frame]) {
-        self.minDate = [NSDate dateWithTimeIntervalSince1970:0];
-        [self commonInit];
-    }
-    return self;
-}
-
-- (instancetype)initWithFrame:(CGRect)frame maxDate:(NSDate *)maxDate minDate:(NSDate *)minDate completion:(void(^)(NSDate *))completion;
-{
-    if (self = [super initWithFrame:[UIScreen mainScreen].bounds]) {
-        self.screen_width = [UIScreen mainScreen].bounds.size.width;
-        self.screen_height = [UIScreen mainScreen].bounds.size.height;
-
+        self.screen_width = frame.size.width;
+        self.screen_height = frame.size.height;
+        
         self.minDate = minDate;
         self.maxDate = maxDate;
         
@@ -54,6 +46,18 @@
         [self commonInit];
     }
     return self;
+}
+
++ (instancetype)showWithDefaultDate:(NSDate *)defaultDate minDate:(NSDate *)minDate maxDate:(NSDate *)maxDate completion:(void(^)(NSDate *))completion
+{
+    RLDataPicker *datePicker = [[RLDataPicker alloc] initWithFrame:[UIScreen mainScreen].bounds maxDate:maxDate minDate:minDate completion:^(NSDate *date) {
+        completion(date);
+    }];
+    if (defaultDate) {
+        datePicker.defaultDate = defaultDate;
+    }
+    [datePicker rl_showInView:[UIApplication sharedApplication].delegate.window];
+    return datePicker;
 }
 
 - (id)initWithCoder:(NSCoder *)coder
