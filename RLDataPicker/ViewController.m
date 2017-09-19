@@ -14,7 +14,9 @@
 
 @property (nonatomic, strong) RLDateHelper *dateHelper;
 
-@property (strong, nonatomic) UILabel *dateLabel;
+@property (nonatomic, strong) UILabel *dateLabel;
+
+@property (nonatomic, strong) NSDate *defaultDate;
 
 @end
 
@@ -23,20 +25,28 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-
-    self.dateHelper = [[RLDateHelper alloc] init];
-    
-    __weak typeof(self) weakSelf = self;
-    [RLDataPicker showWithDefaultDate:[NSDate dateWithTimeIntervalSinceNow:180*24*60*60] minDate:[NSDate date] maxDate:[NSDate dateWithTimeIntervalSinceNow:365*24*60*60] completion:^(NSDate *date) {
-        weakSelf.dateLabel.text = [weakSelf.dateHelper stringFromDate:date format:@"yyyy-MM-dd"];
-    }];
     
     self.dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height /2., self.view.frame.size.width, 40)];
     self.dateLabel.textColor = [UIColor blackColor];
     [self.dateLabel setTextAlignment:NSTextAlignmentCenter];    
     [self.view addSubview:self.dateLabel];
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeContactAdd];
+    button.frame = CGRectMake(self.view.bounds.size.width /2. -50, CGRectGetMaxY(self.dateLabel.frame) +10, 100, 30);
+    [button addTarget:self action:@selector(buttonTap) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:button];
 }
 
+- (void)buttonTap
+{
+    self.dateHelper = [[RLDateHelper alloc] init];
+    self.defaultDate = [self.dateHelper minSelectAge];
+    __weak typeof(self) weakSelf = self;
+    [RLDataPicker showWithDefaultDate:self.defaultDate minDate:[self.dateHelper maxSelectAge] maxDate:[self.dateHelper minSelectAge] completion:^(NSDate *date) {
+        weakSelf.defaultDate = date;
+        weakSelf.dateLabel.text = [weakSelf.dateHelper stringFromDate:date format:@"yyyy-MM-dd"];
+    }];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

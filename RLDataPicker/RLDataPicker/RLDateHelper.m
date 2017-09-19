@@ -87,7 +87,6 @@
 
 - (NSInteger)yearIndexOfDate:(NSDate *)date
 {
-    date = [self handleDate:date];
     NSString *minYear = [self stringFromDate:self.minDate format:@"yyyy"];
     NSString *curYear = [self stringFromDate:date format:@"yyyy"];
     return curYear.integerValue -minYear.integerValue;
@@ -95,29 +94,14 @@
 
 - (NSInteger)monthIndexOfDate:(NSDate *)date
 {
-    date = [self handleDate:date];
     NSString *curMonth = [self stringFromDate:date format:@"MM"];
     return curMonth.integerValue -1;
 }
 
 - (NSInteger)dayIndexOfDate:(NSDate *)date
 {
-    date = [self handleDate:date];
     NSString *curDay = [self stringFromDate:date format:@"dd"];
     return curDay.integerValue -1;
-}
-
-- (NSDate *)handleDate:(NSDate *)date
-{
-    NSComparisonResult minResult = [date compare:self.minDate];
-    if (minResult == NSOrderedAscending) {
-        date = self.minDate;
-    }
-    NSComparisonResult maxResult = [date compare:self.maxDate];
-    if (maxResult == NSOrderedDescending) {
-        date = self.maxDate;
-    }
-    return date;
 }
 
 - (BOOL)bissextile:(NSInteger)year
@@ -142,6 +126,26 @@
     [self.dateFormatter setDateFormat:format];
     NSString *destDateString = [self.dateFormatter stringFromDate:date];
     return destDateString;
+}
+
+//18岁
+- (NSDate *)minSelectAge
+{
+    NSString *timeStr = [self stringFromDate:[NSDate date] format:@"yyyy-MM-dd HH:mm:ss"];
+    NSArray *array = [timeStr componentsSeparatedByString:@"-"];
+    NSArray *beforeArray = @[[NSString stringWithFormat:@"%@",@([array[0] intValue] -18)],array[1],array[2]];
+    NSString *beforeTimeStr = [beforeArray componentsJoinedByString:@"-"];
+    return [self dateFromString:beforeTimeStr format:@"yyyy-MM-dd HH:mm:ss"];
+}
+
+//70岁
+- (NSDate *)maxSelectAge
+{
+    NSString *timeStr = [self stringFromDate:[NSDate date] format:@"yyyy-MM-dd HH:mm:ss"];
+    NSArray *array = [timeStr componentsSeparatedByString:@"-"];
+    NSArray *beforeArray = @[[NSString stringWithFormat:@"%@",@([array[0] intValue] -70)],array[1],array[2]];
+    NSString *beforeTimeStr = [beforeArray componentsJoinedByString:@"-"];
+    return [self dateFromString:beforeTimeStr format:@"yyyy-MM-dd HH:mm:ss"];
 }
 
 @end

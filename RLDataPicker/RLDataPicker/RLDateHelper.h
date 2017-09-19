@@ -34,4 +34,8 @@
 
 - (NSInteger)dayIndexOfDate:(NSDate *)date;
 
+- (NSDate *)minSelectAge;
+
+- (NSDate *)maxSelectAge;
+
 @end

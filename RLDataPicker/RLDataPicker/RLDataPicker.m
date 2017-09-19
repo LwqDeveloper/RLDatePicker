@@ -25,6 +25,8 @@
 @property (nonatomic, copy  ) void(^completion)(NSDate *date);
 @property (nonatomic, strong) NSDate *defaultDate;
 
+@property (nonatomic, assign) BOOL scrollByUser;
+
 @end
 
 @implementation RLDataPicker
@@ -53,10 +55,10 @@
     RLDataPicker *datePicker = [[RLDataPicker alloc] initWithFrame:[UIScreen mainScreen].bounds maxDate:maxDate minDate:minDate completion:^(NSDate *date) {
         completion(date);
     }];
+    [datePicker rl_showInView:[UIApplication sharedApplication].delegate.window];
     if (defaultDate) {
         datePicker.defaultDate = defaultDate;
     }
-    [datePicker rl_showInView:[UIApplication sharedApplication].delegate.window];
     return datePicker;
 }
 
@@ -94,7 +96,7 @@
     
     CGFloat line0Width = self.pickerView.bounds.size.width *5 /11.;
     CGFloat line1Width = self.pickerView.bounds.size.width *3 /11.;
-
+    
     UIView *line = [[UIView alloc] initWithFrame:CGRectMake(line0Width /2. -41, (self.pickerView.bounds.size.height-35)/2, 82, 1)];
     line.backgroundColor = RLCOLOR(0xff10caa5);
     [self.pickerView addSubview:line];
@@ -151,13 +153,25 @@
     if (component == 0) {
         return [self.dateHelper years];
     } else if (component == 1) {
-        NSInteger row0Select = [pickerView selectedRowInComponent:0];
+        NSInteger row0Select;
+        if (!self.scrollByUser && self.defaultDate) {
+            row0Select = [self.dateHelper yearIndexOfDate:self.defaultDate];
+        } else {
+            row0Select = [pickerView selectedRowInComponent:0];
+        }
         NSInteger curYear = [self.dateHelper minYear] +row0Select;
         return [self.dateHelper monthsOfYear:[NSString stringWithFormat:@"%@",@(curYear)]];
     } else {
-        NSInteger row0Select = [pickerView selectedRowInComponent:0];
+        NSInteger row0Select;
+        NSInteger row1Select;
+        if (!self.scrollByUser && self.defaultDate) {
+            row0Select = [self.dateHelper yearIndexOfDate:self.defaultDate];
+            row1Select = [self.dateHelper monthIndexOfDate:self.defaultDate];
+        } else {
+            row0Select = [pickerView selectedRowInComponent:0];
+            row1Select = [pickerView selectedRowInComponent:1];
+        }
         NSInteger curYear = [self.dateHelper minYear] +row0Select;
-        NSInteger row1Select = [pickerView selectedRowInComponent:1];
         NSInteger curMonth = row1Select +1;
         return [self.dateHelper daysOfYear:[NSString stringWithFormat:@"%@",@(curYear)] month:[NSString stringWithFormat:@"%@",@(curMonth)]];
     }
@@ -180,7 +194,7 @@
     [lblDate setFont:[UIFont systemFontOfSize:25.0]];
     [lblDate setTextColor:RLCOLOR(0xff333333)];
     lblDate.textAlignment = NSTextAlignmentCenter;
-
+    
     if (component == 0) {
         lblDate.text = [NSString stringWithFormat:@"%@年",@([self.dateHelper minYear] +row)];
     } else if (component == 1) {
@@ -200,6 +214,7 @@
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
+    self.scrollByUser = YES;
     if (component == 0) {
         [pickerView reloadComponent:1];
         [pickerView reloadComponent:2];
@@ -237,11 +252,11 @@
     [self.pickerView selectRow:[self.dateHelper dayIndexOfDate:defaultDate] inComponent:2 animated:YES];
 }
 /*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-*/
+ // Only override drawRect: if you perform custom drawing.
+ // An empty implementation adversely affects performance during animation.
+ - (void)drawRect:(CGRect)rect {
+ // Drawing code
+ }
+ */
 
 @end
